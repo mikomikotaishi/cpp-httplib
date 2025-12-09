@@ -23,6 +23,8 @@ def main() -> None:
     args: Namespace = args_parser.parse_args()
 
     cur_dir: str = os.path.dirname(sys.argv[0])
+    if not cur_dir:
+        cur_dir = '.'
     lib_name: str = 'httplib'
     header_name: str = f"/{lib_name}.h"
     source_name: str = f"/{lib_name}.{args.extension}"
@@ -45,11 +47,7 @@ def main() -> None:
         with open(in_file) as f:
             lines: List[str] = f.readlines()
 
-        python_version: int = sys.version_info[0]
-        if python_version < 3:
-            os.makedirs(args.out)
-        else:
-            os.makedirs(args.out, exist_ok=True)
+        os.makedirs(args.out, exist_ok=True)
 
         in_implementation: bool = False
         cc_out: str = args.out + source_name
