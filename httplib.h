@@ -5970,7 +5970,7 @@ public:
   FormDataParser() = default;
 
   void set_boundary(std::string &&boundary) {
-    boundary_ = boundary;
+    boundary_ = std::move(boundary);
     dash_boundary_crlf_ = dash_ + boundary_ + crlf_;
     crlf_dash_boundary_ = crlf_ + dash_ + boundary_;
   }
@@ -6835,7 +6835,7 @@ class ContentProviderAdapter {
 public:
   explicit ContentProviderAdapter(
       ContentProviderWithoutLength &&content_provider)
-      : content_provider_(content_provider) {}
+      : content_provider_(std::move(content_provider)) {}
 
   bool operator()(size_t offset, size_t, DataSink &sink) {
     return content_provider_(offset, sink);
