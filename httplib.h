@@ -5398,7 +5398,7 @@ bool read_content(Stream &strm, T &x, size_t payload_max_length, int &status,
 inline ssize_t write_request_line(Stream &strm, const std::string &method,
                                   const std::string &path) {
   std::string s = method;
-  s += " ";
+  s += ' ';
   s += path;
   s += " HTTP/1.1\r\n";
   return strm.write(s.data(), s.size());
@@ -5407,7 +5407,7 @@ inline ssize_t write_request_line(Stream &strm, const std::string &method,
 inline ssize_t write_response_line(Stream &strm, int status) {
   std::string s = "HTTP/1.1 ";
   s += std::to_string(status);
-  s += " ";
+  s += ' ';
   s += httplib::status_message(status);
   s += "\r\n";
   return strm.write(s.data(), s.size());
@@ -5682,9 +5682,9 @@ inline std::string params_to_query_str(const Params &params) {
   std::string query;
 
   for (auto it = params.begin(); it != params.end(); ++it) {
-    if (it != params.begin()) { query += "&"; }
+    if (it != params.begin()) { query += '&'; }
     query += encode_query_component(it->first);
-    query += "=";
+    query += '=';
     query += encode_query_component(it->second);
   }
   return query;
@@ -5941,7 +5941,7 @@ inline bool parse_accept_header(const std::string &s,
       return;
     }
 
-    entries.push_back(accept_entry);
+    entries.push_back(std::move(accept_entry));
   });
 
   // Return false if any invalid entry was found
@@ -5958,8 +5958,8 @@ inline bool parse_accept_header(const std::string &s,
 
   // Extract sorted media types
   content_types.reserve(entries.size());
-  for (const auto &entry : entries) {
-    content_types.push_back(entry.media_type);
+  for (auto &entry : entries) {
+    content_types.push_back(std::move(entry.media_type));
   }
 
   return true;
@@ -6443,9 +6443,9 @@ inline std::string make_content_range_header_field(
 
   std::string field = "bytes ";
   field += std::to_string(st);
-  field += "-";
+  field += '-';
   field += std::to_string(ed);
-  field += "/";
+  field += '/';
   field += std::to_string(content_length);
   return field;
 }
@@ -6822,7 +6822,7 @@ inline bool parse_www_authenticate(const Response &res,
                                     static_cast<size_t>(m.length(2)))
                          : s.substr(static_cast<size_t>(m.position(3)),
                                     static_cast<size_t>(m.length(3)));
-          auth[key] = val;
+          auth[std::move(key)] = std::move(val);
         }
         return true;
       }
@@ -6880,7 +6880,7 @@ inline void hosted_at(const std::string &hostname,
     auto dummy = -1;
     if (detail::get_ip_and_port(addr, sizeof(struct sockaddr_storage), ip,
                                 dummy)) {
-      addrs.push_back(ip);
+      addrs.emplace_back(std::move(ip));
     }
   }
 }
